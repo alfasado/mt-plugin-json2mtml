@@ -1,0 +1,16 @@
+id:   JSON2MTML
+key:  json2mtml
+name: JSON2MTML
+description: <__trans phrase="JSON to MTML using Movable Type data api.">
+author_name: Alfasado Inc.
+author_link: http://alfasado.net/
+version: 0.1
+l10n_class: JSON2MTML::L10N
+config_settings:
+    DataAPIVersion:
+        default: v1
+    DataAPIURL:
+tags:
+    block:
+        JSON2MTML: $json2mtml::JSON2MTML::Tags::_hdlr_json2mtml
+        VarsRecurse: $json2mtml::JSON2MTML::Tags::_hdlr_vars_recurse
