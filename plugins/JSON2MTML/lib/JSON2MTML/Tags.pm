@@ -14,35 +14,63 @@ $Data::Dumper::Useperl = 1;
 sub _hdlr_json2mtml {
     my ( $ctx, $args, $cond ) = @_;
     my $app = MT->instance;
-    my $api_version = $app->config( 'DataAPIVersion' );
+    my $api_version = $args->{ version };
+    if (! $api_version ) {
+        $api_version = $app->config( 'DataAPIVersion' );
+    }
     my $instance_url = $args->{ instance };
     my $request = $args->{ request };
     if (! $instance_url ) {
         $instance_url = $app->config( 'DataAPIURL' );
     }
     my $api = "${instance_url}/${api_version}${request}";
-    my $req = HTTP::Request->new( 'GET', $api );
-    my $ua = LWP::UserAgent->new;
-    my $res = $ua->request( $req );
     my $json;
+    my $cache_file;
+    my $fmgr = MT::FileMgr->new( 'Local' )
+                or die MT::FileMgr->errstr;
+    if ( my $cache_ttl = $args->{ cache_ttl } ) {
+        if ( $cache_ttl eq 'auto' ) {
+            $cache_ttl = $app->config( 'DataAPICacheTtl' );
+        }
+        my $cache_dir = $app->config( 'DataAPICacheDir' );
+        require Digest::MD5;
+        $cache_file = File::Spec->catfile( $cache_dir, Digest::MD5::md5_hex( $api ) );
+        if ( $fmgr->exists( $cache_file ) ) {
+            my $mtime = $fmgr->file_mod_time( $cache_file );
+            my $time = time();
+            if ( ( $time - $cache_ttl ) < $mtime ) {
+                $json = $fmgr->get_data( $cache_file );
+            }
+        }
+    }
+    if (! $json ) {
+        my $req = HTTP::Request->new( 'GET', $api );
+        my $ua = LWP::UserAgent->new;
+        my $res = $ua->request( $req );
+        if ( $res->is_error ) {
+            return '';
+        }
+        $json = $res->{ _content };
+        if ( $cache_file ) {
+            $fmgr->put_data( $json, $cache_file );
+        }
+    }
+    if ( $args->{ raw_data } ) {
+        return $json;
+    }
+    $json = decode_json( $json );
+    if ( $args->{ debug } ) {
+        my $res = '<pre>' . $api . ':';
+        $res .= Dumper( $json );
+        $res .= '</pre>';
+        return $res;
+    }
     my ( $code, $message );
-    if ( $res->is_error ) {
-        return '';
+    if ( my $error = $json->{ error } ) {
+        $code = $error->{ code };
+        $message = $error->{ message };
     } else {
-        $res = $res->{ _content };
-        $json = decode_json( $res );
-        if ( $args->{ debug } ) {
-            my $res = '<pre>' . $api . ':';
-            $res .= Dumper( $json );
-            $res .= '</pre>';
-            return $res;
-        }
-        if ( my $error = $json->{ error } ) {
-            $code = $error->{ code };
-            $message = $error->{ message };
-        } else {
-            $json = $json->{ items };
-        }
+        $json = $json->{ items };
     }
     my $res = '';
     my $vars = $ctx->{ __stash }{ vars } ||= +{};
