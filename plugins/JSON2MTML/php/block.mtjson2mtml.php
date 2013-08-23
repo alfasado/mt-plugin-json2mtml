@@ -58,7 +58,7 @@ function smarty_block_mtjson2mtml( $args, $content, &$ctx, &$repeat ) {
         }
         if ( isset( $args[ 'raw_data' ] ) ) {
             $type = 'application/json';
-            $length =  strlen( $buf );
+            $length = strlen( $buf );
             if ( $mt->config( 'SendHTTPHeaderMethod' ) == 'echo' ) {
                 $headers[] = "content-type: $type";
             } else {
