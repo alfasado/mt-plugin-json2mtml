@@ -9,6 +9,11 @@ function smarty_block_mtjson2mtml( $args, $content, &$ctx, &$repeat ) {
     $mt = $ctx->mt;
     if (! isset( $content ) ) {
         $ctx->localize( $localvars );
+        if ( isset( $args[ 'items' ] ) ) {
+            $item = $args[ 'item' ];
+        } else {
+            $item = 'items';
+        }
         if ( isset( $args[ 'version' ] ) ) {
             $api_version = $args[ 'version' ];
         } else {
@@ -95,10 +100,14 @@ function smarty_block_mtjson2mtml( $args, $content, &$ctx, &$repeat ) {
             $ctx->__stash[ 'vars' ][ 'code' ] = $error[ 'code' ];
             $ctx->__stash[ 'vars' ][ 'message' ] = $error[ 'message' ];
         } else {
-            $json = $json[ 'items' ];
+            $totalResults = $json[ 'totalResults' ];
+            if ( $item ) {
+                $json = $json[ $item ];
+            }
             $total = count( $json );
             $ctx->stash( 'json2mtmlitems', $json );
             $ctx->stash( 'json2mtmltotalsize', $total );
+            $ctx->stash( 'json2mtmltotalresults', $totalResults );
             $ctx->stash( 'json2mtmlcounter', 0 );
             $counter = 0;
         }
@@ -107,6 +116,7 @@ function smarty_block_mtjson2mtml( $args, $content, &$ctx, &$repeat ) {
             $repeat = FALSE;
             return '';
         }
+        $totalResults = $ctx->stash( 'json2mtmltotalresults' );
         $json = $ctx->stash( 'json2mtmlitems' );
         $counter = $ctx->stash( 'json2mtmlcounter' );
         $total = $ctx->stash( 'json2mtmltotalsize' );
@@ -125,9 +135,11 @@ function smarty_block_mtjson2mtml( $args, $content, &$ctx, &$repeat ) {
                     $ctx->__stash[ 'vars' ][ strtolower( $key ) ] = $value;
                 }
                 $counter++;
-                $ctx->__stash[ 'vars' ][ '__counter__' ] = $counter;
-                $ctx->__stash[ 'vars' ][ '__odd__' ]     = ( $counter % 2 ) == 1;
-                $ctx->__stash[ 'vars' ][ '__even__' ]    = ( $counter % 2 ) == 0;
+                $ctx->__stash[ 'vars' ][ '__counter__' ]  = $counter;
+                $ctx->__stash[ 'vars' ][ '__odd__' ]      = ( $counter % 2 ) == 1;
+                $ctx->__stash[ 'vars' ][ '__even__' ]     = ( $counter % 2 ) == 0;
+                $ctx->__stash[ 'vars' ][ 'totalresults' ] = $totalResults;
+                $ctx->__stash[ 'vars' ][ 'totalResults' ] = $totalResults;
                 if ( $total == $counter ) {
                     $ctx->__stash[ 'vars' ][ '__last__' ] = 1;
                 }

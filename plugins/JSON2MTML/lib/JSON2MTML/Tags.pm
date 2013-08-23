@@ -14,6 +14,12 @@ $Data::Dumper::Useperl = 1;
 sub _hdlr_json2mtml {
     my ( $ctx, $args, $cond ) = @_;
     my $app = MT->instance;
+    my $item;
+    if ( defined $args->{ item } ) {
+        $item = $args->{ item };
+    } else {
+        $item = 'items';
+    }
     my $api_version = $args->{ version };
     if (! $api_version ) {
         $api_version = $app->config( 'DataAPIVersion' );
@@ -65,12 +71,15 @@ sub _hdlr_json2mtml {
         $res .= '</pre>';
         return $res;
     }
-    my ( $code, $message );
+    my ( $code, $message, $totalResults );
     if ( my $error = $json->{ error } ) {
         $code = $error->{ code };
         $message = $error->{ message };
     } else {
-        $json = $json->{ items };
+        $totalResults = $json->{ totalResults };
+        if ( $item ) {
+            $json = $json->{ items };
+        }
     }
     my $res = '';
     my $vars = $ctx->{ __stash }{ vars } ||= +{};
@@ -81,11 +90,12 @@ sub _hdlr_json2mtml {
         my $i = 0;
         for my $record ( @$json ) {
             my $last = !defined @$json[ $i + 1 ];
-            local $vars->{ __first__ }   = !$i;
-            local $vars->{ __counter__ } = $i + 1;
-            local $vars->{ __odd__ }     = $i % 2 ? 0 : 1;
-            local $vars->{ __even__ }    = $i % 2;
-            local $vars->{ __last__ }    = $last;
+            local $vars->{ __first__ }    = !$i;
+            local $vars->{ __counter__ }  = $i + 1;
+            local $vars->{ __odd__ }      = $i % 2 ? 0 : 1;
+            local $vars->{ __even__ }     = $i % 2;
+            local $vars->{ __last__ }     = $last;
+            local $vars->{ totalresults } = $totalResults;
             for my $key ( keys ( %$record ) ) {
                 my $value = $record->{ $key };
                 $vars->{ lc( $key ) } = $value;
