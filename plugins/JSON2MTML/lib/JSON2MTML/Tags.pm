@@ -40,7 +40,11 @@ sub _hdlr_json2mtml {
         }
         my $cache_dir = $app->config( 'DataAPICacheDir' );
         require Digest::MD5;
-        $cache_file = File::Spec->catfile( $cache_dir, Digest::MD5::md5_hex( $api ) );
+        my $filename = Digest::MD5::md5_hex( $api );
+        if ( my $updated_at = $args->{ updated_at } ) {
+            $filename = $updated_at . '.' . $filename;
+        }
+        $cache_file = File::Spec->catfile( $cache_dir, $filename );
         if ( $fmgr->exists( $cache_file ) ) {
             my $mtime = $fmgr->file_mod_time( $cache_file );
             my $time = time();

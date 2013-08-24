@@ -35,7 +35,13 @@ function smarty_block_mtjson2mtml( $args, $content, &$ctx, &$repeat ) {
             }
             $cache_dir = $mt->config( 'DataAPICacheDir' ) ?
                          $mt->config( 'DataAPICacheDir' ) : DataAPICacheDir;
+            if ( isset( $args[ 'updated_at' ] ) ) {
+                $updated_at = $args[ 'updated_at' ];
+            }
             $filename = md5( $api );
+            if ( $updated_at ) {
+                $filename = $updated_at . '.' . $filename;
+            }
             $cache_file = $cache_dir . DIRECTORY_SEPARATOR . $filename;
             if ( file_exists( $cache_file ) ) {
                 $mtime = filemtime( $cache_file );

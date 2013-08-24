@@ -4,7 +4,7 @@ name: JSON2MTML
 description: <__trans phrase="JSON to MTML using Movable Type data api.">
 author_name: Alfasado Inc.
 author_link: http://alfasado.net/
-version: 0.2
+version: 0.3
 l10n_class: JSON2MTML::L10N
 config_settings:
     DataAPIVersion:
@@ -14,7 +14,12 @@ config_settings:
         default: /tmp
     DataAPICacheTtl:
         default: 600
+    DataAPICachedObjectTypes:
+        default: entry,blog
 tags:
     block:
         JSON2MTML: $json2mtml::JSON2MTML::Tags::_hdlr_json2mtml
         VarsRecurse: $json2mtml::JSON2MTML::Tags::_hdlr_vars_recurse
+callbacks:
+    post_save: $json2mtml::JSON2MTML::Callbacks::_cb_post_change
+    post_remove: $json2mtml::JSON2MTML::Callbacks::_cb_post_change
