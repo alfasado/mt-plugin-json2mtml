@@ -1,7 +1,7 @@
 <?php
 define( 'DataAPIVersion', 'v1' );
 define( 'DataAPICacheDir', '/tmp' );
-define( 'DataAPICacheTtl', '/600' );
+define( 'DataAPICacheTtl', '600' );
 // /mt-data-api.json?api=%2fsites%2f2%2fentries%3fsortOrder%3dascend
 function smarty_block_mtjson2mtml( $args, $content, &$ctx, &$repeat ) {
     $localvars = array( 'json2mtmlitems', 'json2mtmltotalsize',
