@@ -73,7 +73,7 @@ function smarty_block_mtjson2mtml( $args, $content, &$ctx, &$repeat ) {
             if ( $mt->config( 'SendHTTPHeaderMethod' ) == 'echo' ) {
                 $headers[] = "content-type: $type";
             } else {
-                header( "content-type: $type");
+                header( "content-type: $type" );
             }
             $last_modified = gmdate( "D, d M Y H:i:s", $mtime ) . ' GMT';
             $etag = '"' . md5( $last_modified ) . '"';
