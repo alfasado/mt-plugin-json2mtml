@@ -4,7 +4,9 @@ name: JSON2MTML
 description: <__trans phrase="JSON to MTML using Movable Type data api.">
 author_name: Alfasado Inc.
 author_link: http://alfasado.net/
-version: 0.3
+config_uri: https://raw.github.com/alfasado/mt-plugin-json2mtml/master/plugins/JSON2MTML/config.yaml
+archive_uri: https://github.com/alfasado/mt-plugin-json2mtml/archive/master.zip
+version: 0.5
 l10n_class: JSON2MTML::L10N
 config_settings:
     DataAPIVersion:
